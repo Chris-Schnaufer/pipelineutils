@@ -111,10 +111,10 @@ class __local__():
             No checks are made to the args parameter for validity to the method requested
         """
         if not kwargs is None:
-            print("Making %s request with args to \"%s\"" % (method, url))
+            logging.debug("Making %s request with args to \"%s\"", method, url)
             result = requests.request(method, url, **kwargs)
         else:
-            print("Making %s request to \"%s\" with no args" % (method, url))
+            logging.debug("Making %s request to \"%s\" with no args", method, url)
             result = requests.request(method, url)
         result.raise_for_status()
 

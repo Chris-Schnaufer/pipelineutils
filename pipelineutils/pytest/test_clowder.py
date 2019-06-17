@@ -35,3 +35,5 @@ class ClowderTestCase(unittest.TestCase):
             print("Exception was caught: ", str(ex))
         finally:
             self.assertNotEqual(a_key, None, "No key was returned from clowder instance")
+
+        print("test_get_api_key passed: " + a_key)
