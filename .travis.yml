@@ -1,7 +1,7 @@
 # READ THIS
 # The Travis CI environment needs to have the following defined:
 # 1. CLOWDER_HOST_URI - the Clowder host URI to test against. Needs to be clean for each testing run (no post-
-# .  run cleanup is done at this time)
+#    run cleanup is done at this time)
 # 2. TEST_DATASET_NAME - the name of the dataset to create and use for testing
 # 3. DOCKER_COMPOSE_VERSION - the version of docker-compose to install
 
@@ -36,7 +36,7 @@ stages:
 matrix:
   include:
     - name: "Run Extractor"
-    - env: EXTRACTOR_DOCKER_NAME=chrisatua/extractors:opendronemap EXTRACTOR_REGISTRATION_FILE=data/opendronemap_extractor_info.json TEST_SOURCE_ARCHIVE=odm_test_data.tar SOURCE_FILE=pipelineutils/pipelineutils/pipelineutils.py
+    - env: EXTRACTOR_DOCKER_NAME=chrisatua/extractors:opendronemap EXTRACTOR_REGISTRATION_FILE=pipelineutils/pytest/data/opendronemap_extractor_info.json TEST_SOURCE_ARCHIVE=odm_test_data.tar SOURCE_FILE=pipelineutils/pipelineutils/pipelineutils.py
 
 env:
   global:
