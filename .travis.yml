@@ -102,8 +102,7 @@ script:
   - pylint --version
   - pylint --rcfile pylint.rc "$SOURCE_FILE"
   # Next, run the testing scripts
-  - 
+  - python -m unittest pipelineutils/pytest/test_clowder.py
 
 after_script:
   - echo "Deploying library after successful run"
-  - 

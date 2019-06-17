@@ -21,11 +21,11 @@ class __local__():
         """
 
     @staticmethod
-    def get(url: str, args=None, result_key: str = None, result_index: int = None):
+    def get(url: str, kwargs=None, result_key: str = None, result_index: int = None):
         """Makes a GET request
         Args:
             url(string): the url to call
-            args: arguments to pass to the call
+            kwargs: keyword arguments to pass to the call
             result_key(string): optional key to look up in the results
             result_index(int): optional index to return the result_key value from, for indexable results
         Return:
@@ -40,15 +40,15 @@ class __local__():
         Notes:
             No checks are made to the args parameter for validity to the GET call
         """
-        request = lambda: __local__.make_call("GET", url, args, result_key, result_index)
+        request = lambda: __local__.make_call("GET", url, kwargs, result_key, result_index)
         return request()
 
     @staticmethod
-    def post(url: str, args=None, result_key: str = None, result_index: int = None):
+    def post(url: str, kwargs=None, result_key: str = None, result_index: int = None):
         """Makes a POST request
         Args:
             url(string): the url to call
-            args: arguments to pass to the call
+            kwargs: arguments to pass to the call
             result_key(string): optional key to look up in the results
             result_index(int): optional index to return the result_key value from, for indexable results
         Return:
@@ -63,15 +63,15 @@ class __local__():
         Notes:
             No checks are made to the args parameter for validity to the POST call
         """
-        request = lambda: __local__.make_call("POST", url, args, result_key, result_index)
+        request = lambda: __local__.make_call("POST", url, kwargs, result_key, result_index)
         return request()
 
     @staticmethod
-    def delete(url: str, args=None, result_key: str = None, result_index: int = None):
+    def delete(url: str, kwargs=None, result_key: str = None, result_index: int = None):
         """Makes a DELETE request
         Args:
             url(string): the url to call
-            args: arguments to pass to the call
+            kwargs: arguments to pass to the call
             result_key(string): optional key to look up in the results
             result_index(int): optional index to return the result_key value from, for indexable results
         Return:
@@ -86,16 +86,16 @@ class __local__():
         Notes:
             No checks are made to the args parameter for validity to the DELETE call
         """
-        request = lambda: __local__.make_call("DELETE", url, args, result_key, result_index)
+        request = lambda: __local__.make_call("DELETE", url, kwargs, result_key, result_index)
         return request()
 
     @staticmethod
-    def make_call(method: str, url: str, args=None, result_key: str = None, result_index: int = None):
+    def make_call(method: str, url: str, kwargs=None, result_key: str = None, result_index: int = None):
         """Makes a generic HTTP request
         Args:
             method(string): the method to use when making the call
             url(string): the url to call
-            args: arguments to pass to the call
+            kwargs: arguments to pass to the call
             result_key(string): optional key to look up in the results
             result_index(int): optional index to return the result_key value from, for indexable results
         Return:
@@ -110,9 +110,11 @@ class __local__():
         Notes:
             No checks are made to the args parameter for validity to the method requested
         """
-        if not args is None:
-            result = requests.request(method, url, *args)
+        if not kwargs is None:
+            print("Making %s request with args to \"%s\"" % (method, url))
+            result = requests.request(method, url, **kwargs)
         else:
+            print("Making %s request to \"%s\" with no args" % (method, url))
             result = requests.request(method, url)
         result.raise_for_status()
 
