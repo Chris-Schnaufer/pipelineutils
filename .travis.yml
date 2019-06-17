@@ -55,6 +55,8 @@ before_install:
   - ls -l docker-compose     # Show that docker-compose is in place with correct permissions
   - sudo mv docker-compose /usr/local/bin  # Put into correct spot
   - docker-compose --version
+  # Install packages that are needed
+  - sudo apt install pylint
   # Install Python packages that are needed
   - pip install -U requests
 
