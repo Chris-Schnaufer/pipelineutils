@@ -56,8 +56,8 @@ before_install:
   - sudo mv docker-compose /usr/local/bin  # Put into correct spot
   - docker-compose --version
   # Install packages that are needed
-  - sudo apt install pylint
   # Install Python packages that are needed
+  - pip install -U pylint
   - pip install -U requests
 
 # Start up the test bed containers and copy files from other locations as needed
