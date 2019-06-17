@@ -32,15 +32,13 @@ stages:
     # require the branch name to be master (note for PRs this is the base branch name)
     if: branch = master
 
-# List all extractors here. The individual scripts will check the branch against their job
-matrix:
-  include:
-    - name: "Run Extractor"
-    - env: EXTRACTOR_DOCKER_NAME=chrisatua/extractors:opendronemap EXTRACTOR_REGISTRATION_FILE=pipelineutils/pytest/data/opendronemap_extractor_info.json TEST_SOURCE_ARCHIVE=odm_test_data.tar SOURCE_FILE=pipelineutils/pipelineutils/pipelineutils.py
-
 env:
   global:
     - DOCKER_NAMED_CONTAINER=test_extractor   # Used to name the container for easier finding
+    - EXTRACTOR_DOCKER_NAME=chrisatua/extractors:opendronemap
+    - EXTRACTOR_REGISTRATION_FILE=pipelineutils/pytest/data/opendronemap_extractor_info.json
+    - TEST_SOURCE_ARCHIVE=odm_test_data.tar
+    - SOURCE_FILE=pipelineutils/pipelineutils/pipelineutils.py
 
 # Basic setup for the build. Install software needed by all extractors followed by optional installs for specific extractors
 before_install:
