@@ -39,6 +39,12 @@ env:
     - EXTRACTOR_REGISTRATION_FILE=pipelineutils/pytest/data/opendronemap_extractor_info.json
     - TEST_SOURCE_ARCHIVE=odm_test_data.tar
     - SOURCE_FILE=pipelineutils/pipelineutils/pipelineutils.py
+    - TEST_CLOWDER_USERNAME=test@example.com
+    - TEST_CLOWDER_PASSWORD=testPassword
+    - TEST_EXTRACTOR_NAME=opendronemap
+    - TEST_SPACE_NAME=test_space
+    - TEST_FILE_UPLOAD_PATH=pipelineutils/pytest/data/opendronemap_extractor_info.json
+    - TEST_EXTRACTOR_FULL_NAME=terra.dronepipeline.opendronemap
 
 # Basic setup for the build. Install software needed by all extractors followed by optional installs for specific extractors
 before_install:
@@ -59,6 +65,7 @@ before_install:
   # Install Python packages that are needed
   - pip install -U pylint
   - pip install -U requests
+  - pip install -U uuid
 
 # Start up the test bed containers and copy files from other locations as needed
 install:
@@ -71,12 +78,12 @@ install:
   # Setup the clowder account
   - echo "Starting Clowder configuration"
   - echo "Clowder URL:\ $CLOWDER_HOST_URI"
-  - curl -X POST -H "Content-Type:application/x-www-form-urlencoded" "$CLOWDER_HOST_URI/signup?email=test%40example.com"
+  - curl -X POST -H "Content-Type:application/x-www-form-urlencoded" "$CLOWDER_HOST_URI/signup?email=$TEST_CLOWDER_USERNAME"
   - ./test/wait_for_registration.sh
   - URI=`sed -r 's/.*href="(.+)">.*/\1/' reg.txt`
   - echo "URI:\ $URI"
-  - curl -X POST -H "Content-Type:application/x-www-form-urlencoded" "$URI?firstName=test&lastName=test&password.password1=testPassword&password.password2=testPassword&agreementAcknowledged=true"
-  - curl -X POST -H "Content-Type:application/x-www-form-urlencoded" "$CLOWDER_HOST_URI/authenticate/userpass?username=test%40example.com&password=testPassword" -D headers.txt
+  - curl -X POST -H "Content-Type:application/x-www-form-urlencoded" "$URI?firstName=test&lastName=test&password.password1=$TEST_CLOWDER_PASSWORD&password.password2=$TEST_CLOWDER_PASSWORD&agreementAcknowledged=true"
+  - curl -X POST -H "Content-Type:application/x-www-form-urlencoded" "$CLOWDER_HOST_URI/authenticate/userpass?username=$TEST_CLOWDER_USERNAME&password=$TEST_CLOWDER_PASSWORD" -D headers.txt
   - USER_ID=`grep 'Set-Cookie:\ id' headers.txt | sed -r 's/Set-(.+);.*;.*/\1/'`
   - echo "USER ID:\ $USER_ID"
   - export API_KEY=`curl -X POST -v -H "Content-Type:application/x-www-form-urlencoded" "$CLOWDER_HOST_URI/api/users/keys?name=testingkey" -H "$USER_ID" | sed -r 's/.*"key":"(.+)".*/\1/'`
@@ -85,7 +92,7 @@ install:
 # Setup the clowder environment
 before_script:
   - echo "Setting up Clowder spaces and datasets"
-  - export SPACE_ID=`curl -X POST -v -H "accept:application/json" -H "Content-Type:application/json" -d '{"name":"test_space","description":"Test results"}' "$CLOWDER_HOST_URI/api/spaces?key=$API_KEY" | sed -r 's/.*id\"\:\"(.+)\".*/\1/'`
+  - export SPACE_ID=`curl -X POST -v -H "accept:application/json" -H "Content-Type:application/json" -d "{\"name\":\"$TEST_SPACE_NAME\",\"description\":\"Test results\"}" "$CLOWDER_HOST_URI/api/spaces?key=$API_KEY" | sed -r 's/.*id\"\:\"(.+)\".*/\1/'`
   - echo "SPACE_ID:\ $SPACE_ID"
   - export DATASET_ID=`curl -X POST -v -H "accept:application/json" -H "Content-Type:application/json" -d "{\"name\":\"$TEST_DATASET_NAME\"}" "$CLOWDER_HOST_URI/api/datasets/createempty?key=$API_KEY" | sed -r 's/.*id\"\:\"(.+)\".*/\1/'`
   - echo "DATASET ID:\ $DATASET_ID"
@@ -104,6 +111,7 @@ script:
   # First make sure the code is proper
   - pylint --version
   - pylint --rcfile pylint.rc "$SOURCE_FILE"
+  - pylint --rcfile pylint.rc pipelineutils/pytest/test_clowder.py
   # Next, run the testing scripts
   - python -m unittest pipelineutils/pytest/test_clowder.py
 
