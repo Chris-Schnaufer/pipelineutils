@@ -375,7 +375,7 @@ class ClowderTestCase(unittest.TestCase):
         except Exception as ex:
             print("Exception was caught file removing ", str(ex))
         finally:
-            self.assertTrue(file_removed, "The file '" + test_name + "' was removed from dataset '" + ds_name + "'")
+            self.assertFalse(file_removed, "The file '" + test_name + "' was removed from dataset '" + ds_name + "'")
 
         print("test_checked_remove_file_1 for '" + test_name + "' passed by not removing a non-existant file")
 
@@ -409,7 +409,7 @@ class ClowderTestCase(unittest.TestCase):
         except Exception as ex:
             print("Exception was caught file removing ", str(ex))
         finally:
-            self.assertFalse(file_removed, "The file '" + test_name + "' was not removed from dataset '" +
+            self.assertTrue(file_removed, "The file '" + test_name + "' was not removed from dataset '" +
                              ds_name + "'")
 
         print("test_checked_remove_file_2 for '" + test_name + "' passed by removing existing file")

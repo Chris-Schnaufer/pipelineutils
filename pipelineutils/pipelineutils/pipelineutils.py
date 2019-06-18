@@ -358,7 +358,7 @@ class __local__():
             Throws HTTPError if the API request was not successful. A ValueError
             exception is raised if the returned JSON is invalid.
         """
-        url = "%s/files/%s?key=%s" % (clowder_api_url, file_id, api_key)
+        url = "%s/api/files/%s?key=%s" % (clowder_api_url, file_id, api_key)
 
         result_status = __local__.delete(url, result_key='status')
         if result_status is None:
@@ -387,7 +387,7 @@ class __local__():
 
         # Upload the temporary file to the dataset
         result_id = None
-        url = "%sapi/uploadToDataset/%s?key=%s&extract=false" % (clowder_api_url, dataset_id, api_key)
+        url = "%s/api/uploadToDataset/%s?key=%s&extract=false" % (clowder_api_url, dataset_id, api_key)
         post_args = {"files": {"File": (filename, configuration)}
                     }
 
@@ -430,7 +430,7 @@ class __local__():
 
         # Upload the file to the dataset
         result_id = None
-        url = "%sapi/uploadToDataset/%s?key=%s&extract=false" % (clowder_api_url, dataset_id, api_key)
+        url = "%s/api/uploadToDataset/%s?key=%s&extract=false" % (clowder_api_url, dataset_id, api_key)
         post_args = {"files": {"File": open(our_filename, 'rb')}}
         try:
             result_id = __local__.post(url, post_args, result_key='id')
