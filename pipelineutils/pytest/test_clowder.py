@@ -4,12 +4,52 @@
 import os
 import uuid
 import unittest
+import datetime
+import time
+import logging
 
 import pipelineutils.pipelineutils.pipelineutils as pu
 
+# Define constants
 USERNAME = os.getenv("TEST_CLOWDER_USERNAME", "test@example.com")
 PASSWORD = os.getenv("TEST_CLOWDER_PASSWORD", "testPassword")
 CLOWDER_URI = os.getenv("CLOWDER_HOST_URI", "http://localhost:9000")
+
+FILE_WAIT_SLEEP_SECONDS = 5
+FILE_WAIT_TIMEOUT_SECONDS = 5 * 60
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+def _wait_for_file(api_key, ds_id, filename):
+    """Waits for the specified file to show up in the dataset
+    Args:
+        api_key(str): the API key to use
+        ds_id(str): the dataset ID to look in
+        filename(str): the name of the file to look for
+    Return:
+        True is returned if the file is found before timeout
+    """
+    file_found = False
+    start_ts = datetime.datetime.now()
+    cur_ts = start_ts
+    while (cur_ts - start_ts).total_seconds() < FILE_WAIT_TIMEOUT_SECONDS and not file_found:
+        url = "%s/api/datasets/%s/files?key=%s" % (CLOWDER_URI, ds_id, api_key)
+
+        try:
+            result_json = pu.__local__.get(url)
+            # Try to find the filename
+            if not result_json is None:
+                for one_file in result_json:
+                    if 'filename' in one_file and one_file['filename'] == filename:
+                        file_found = True
+        except Exception as ex:
+            print("Exception was caught waiting for a file: " + str(ex))
+            print("    Continuing to wait for the file \"" + filename + "\"")
+
+        time.sleep(FILE_WAIT_SLEEP_SECONDS)
+
+    return file_found
 
 # pylint: disable=too-many-public-methods
 class ClowderTestCase(unittest.TestCase):
@@ -139,12 +179,12 @@ class ClowderTestCase(unittest.TestCase):
         finally:
             self.assertIsNone(space_id, "Space ID for space '" + test_name + "' was found but should not have been")
             
-        print("test_get_space_id for '" + test_name + "' passed: " + space_id)
+        print("test_failure_get_space_id for '" + test_name + "' passed by not finding a space")
         
     def test_create_space(self):
         """Unit test for creating a space in Clowder
         """
-        test_name = str(uuid.uuid4())
+        test_name = uuid.uuid4().hex
         self.assertIsNotNone(test_name, "Unable to generate a space name for testing space creation")
             
         try:
@@ -313,7 +353,7 @@ class ClowderTestCase(unittest.TestCase):
             self.assertIsNotNone(ds_id, "Dataset ID for dataset '" + ds_name + "' was not found")
         
         try:
-            file_id = pu.__local__.upload_file(CLOWDER_URI, api_key, ds_id, file_name, test_name)
+            file_id = pu.__local__.upload_file(CLOWDER_URI, api_key, ds_id, test_name, file_name)
         except Exception as ex:
             print("Exception was caught testing file upload ", str(ex))
         finally:
@@ -344,6 +384,9 @@ class ClowderTestCase(unittest.TestCase):
             print("Exception was caught file upload for testing file removal ", str(ex))
         finally:
             self.assertIsNotNone(file_id, "The file '" + test_name + "' was not uploaded to dataset '" + ds_name + "'")
+
+        # Wait for the file to show up
+        self.assertTrue(_wait_for_file(api_key, ds_id, test_name))
 
         try:
             file_removed = pu.__local__.remove_file_by_id(CLOWDER_URI, api_key, file_id)
@@ -404,13 +447,16 @@ class ClowderTestCase(unittest.TestCase):
             self.assertIsNotNone(file_id, "The file '" + test_name + "' was not uploaded to dataset '" +
                                  ds_name + "'")
 
+        # Wait for the file to show up
+        self.assertTrue(_wait_for_file(api_key, ds_id, test_name))
+
         try:
             file_removed = pu.__local__.checked_remove_file(CLOWDER_URI, api_key, ds_id, test_name)
         except Exception as ex:
             print("Exception was caught file removing ", str(ex))
         finally:
             self.assertTrue(file_removed, "The file '" + test_name + "' was not removed from dataset '" +
-                             ds_name + "'")
+                            ds_name + "'")
 
         print("test_checked_remove_file_2 for '" + test_name + "' passed by removing existing file")
         

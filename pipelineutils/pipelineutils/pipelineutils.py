@@ -149,6 +149,8 @@ class __local__():
                     "auth": (username, password)
                    }
 
+        logging.debug("get_api_key calling get: %s", url)
+        logging.debug("    %s", str(get_args))
         result_key = __local__.get(url, get_args, result_key="key", result_index=0)
         if result_key is None:
             logging.warning("Unable to find an API key for user %s", username)
@@ -170,9 +172,11 @@ class __local__():
         Notes:
             The first match found is the one that's returned
         """
-        url = "%s/extractors?key=%s" % (clowder_api_url, api_key)
+        url = "%s/api/extractors?key=%s" % (clowder_api_url, api_key)
         get_args = {"headers": {"Accept": "application/json"}}
 
+        logging.debug("find_extractor_name calling get: %s", url)
+        logging.debug("    %s", str(get_args))
         result_json = __local__.get(url, get_args)
         if not result_json is None:
             for ex in result_json:
@@ -199,6 +203,7 @@ class __local__():
         # Look up the dataset
         url = "%s/api/datasets?key=%s&title=%s&exact=true" % (clowder_api_url, api_key, str(dataset_name))
 
+        logging.debug("get_dataset_id calling get: %s", url)
         result_id = __local__.get(url, result_key='id', result_index=0)
         if result_id is None:
             logging.warning("Unable to find the ID for the dataset \"%s\"", dataset_name)
@@ -220,21 +225,23 @@ class __local__():
         """
 
         # Make the call to get the ID
-        url = "%s/spaces?key=%s&title=%s&exact=true" % (clowder_api_url, api_key, str(space_name))
+        url = "%s/api/spaces?key=%s&title=%s&exact=true" % (clowder_api_url, api_key, str(space_name))
 
-        result_id = __local__.get(url)
+        logging.debug("get_space_id calling get: %s", url)
+        result_id = __local__.get(url, result_key='id', result_index=0)
         if result_id is None:
             logging.warning("Unable to find the ID for the space \"%s\"", space_name)
             
         return result_id
 
     @staticmethod
-    def create_space(clowder_api_url: str, api_key: str, space_name: str) -> str:
+    def create_space(clowder_api_url: str, api_key: str, space_name: str, description: str = "") -> str:
         """Creates the space in Clowder and returns its ID
         Args:
             clowder_api_url(string): the URL to the Clowder instance's API to call
             api_key(string): the key to use when calling the API
             space_name(string): the name of the space to create
+            description(string): optional parameter describing the space
         Return:
             Returns the ID if the space was created. None is returned otherwise
         Exceptions:
@@ -243,11 +250,13 @@ class __local__():
         """
 
         # Make the call to create the space
-        url = "%s/spaces?key=%s" % (clowder_api_url, api_key)
+        url = "%s/api/spaces?key=%s" % (clowder_api_url, api_key)
         post_args = {"headers": {"Content-Type": "application/json"},
-                     "data": json.dumps({"name": space_name})
+                     "data": json.dumps({"name": space_name, "description": description})
                     }
         
+        logging.debug("create_space calling post: %s", url)
+        logging.debug("    %s", str(post_args))
         result_id = __local__.post(url, post_args, result_key='id', result_index=0)
         if result_id is None:
             logging.warning("Unable to determine if space \"%s\" was created", space_name)
@@ -333,15 +342,13 @@ class __local__():
         # Try to find the file
         url = "%s/api/datasets/%s/files?key=%s" % (clowder_api_url, dataset_id, api_key)
 
+        logging.debug("checked_remove_file calling get: %s", url)
         result_json = __local__.get(url)
-        # Try to find the ID
+        # Try to find the filename
         if not result_json is None:
             for one_file in result_json:
                 if 'filename' in one_file and one_file['filename'] == filename:
                     return __local__.remove_file_by_id(clowder_api_url, api_key, one_file['id'])
-
-        logging.warning("Unable to determine if file \"%s\" was removed from dataset %s",
-                        filename, dataset_id)
         return False
 
     @staticmethod
@@ -360,6 +367,7 @@ class __local__():
         """
         url = "%s/api/files/%s?key=%s" % (clowder_api_url, file_id, api_key)
 
+        logging.debug("remove_file_by_id calling delete: %s", url)
         result_status = __local__.delete(url, result_key='status')
         if result_status is None:
             logging.warning("Unable to determine if file %s was deleted", file_id)
@@ -391,6 +399,8 @@ class __local__():
         post_args = {"files": {"File": (filename, configuration)}
                     }
 
+        logging.debug("upload_as_file calling post: %s", url)
+        logging.debug("    %s", str(post_args))
         result_id = __local__.post(url, post_args, result_key='id')
 
         if result_id is None:
@@ -431,10 +441,15 @@ class __local__():
         # Upload the file to the dataset
         result_id = None
         url = "%s/api/uploadToDataset/%s?key=%s&extract=false" % (clowder_api_url, dataset_id, api_key)
-        post_args = {"files": {"File": open(our_filename, 'rb')}}
+        config_fd = open(our_filename, 'rb')
+        post_args = {"files": {"File": config_fd}}
         try:
+            logging.debug("upload_file calling post: %s", url)
+            logging.debug("    %s", str(post_args))
             result_id = __local__.post(url, post_args, result_key='id')
         finally:
+            # Close our file
+            config_fd.close()
             # Clean up any temporary files and folders
             do_cleanup(tmp_folder)
 
@@ -457,9 +472,13 @@ class __local__():
         Exceptions:
             Throws HTTPError if the API request was not successful.
         """
-        url = "%s/datasets/%s/extractions?key=%s" % (clowder_api_url, dataset_id, api_key)
+        url = "%s/api/datasets/%s/extractions?key=%s" % (clowder_api_url, dataset_id, api_key)
         body_params = {'extractor': extractor_name}
         request_headers = {'Content-Type': 'application/json'}
+
+        logging.debug("start_extractor calling requests.post: %s", url)
+        logging.debug("    Headers: %s", str(request_headers))
+        logging.debug("    Data: %s", str(body_params))
         result = requests.post(url,
                                headers=request_headers,
                                data=json.dumps(body_params))
