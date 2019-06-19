@@ -108,6 +108,8 @@ before_script:
   - echo "Registering the extractor and waiting for it to start"
   - ./test/register_extractor.py "$EXTRACTOR_REGISTRATION_FILE"
   - ./test/wait_for_started.py "$EXTRACTOR_DOCKER_NAME"
+  # HACK: This next statement gets Clowder to return the space when queried through the API
+  - curl -X GET -H "accept:application/json" "$CLOWDER_HOST_URI/spaces/$SPACE_ID?key=$API_KEY"
 
 # Run the tests
 script:
