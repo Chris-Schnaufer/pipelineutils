@@ -54,6 +54,9 @@ before_install:
   - docker --version
   - ls -l
   - ls -l test
+  - ls -l pipelinutils
+  - ls -l pipelinutils/pytest
+  - ls -l pipelinutils/pipelinutils
   - echo "Attempting to update to docker-compose version:\ $DOCKER_COMPOSE_VERSION"
   - sudo rm -f /usr/local/bin/docker-compose   # Update docker-compose by removing any old versions
   - curl -L https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-`uname -s`-`uname -m` > docker-compose
@@ -94,7 +97,6 @@ before_script:
   - echo "Setting up Clowder spaces and datasets"
   - export SPACE_ID=`curl -X POST -v -H "accept:application/json" -H "Content-Type:application/json" -d "{\"name\":\"$TEST_SPACE_NAME\",\"description\":\"Test results\"}" "$CLOWDER_HOST_URI/api/spaces?key=$API_KEY" | sed -r 's/.*id\"\:\"(.+)\".*/\1/'`
   - echo "SPACE_ID:\ $SPACE_ID"
-  - echo `curl -X GET -H "accept:application/json" "$CLOWDER_HOST_URI/api/spaces?key=$API_KEY"`
   - export DATASET_ID=`curl -X POST -v -H "accept:application/json" -H "Content-Type:application/json" -d "{\"name\":\"$TEST_DATASET_NAME\"}" "$CLOWDER_HOST_URI/api/datasets/createempty?key=$API_KEY" | sed -r 's/.*id\"\:\"(.+)\".*/\1/'`
   - echo "DATASET ID:\ $DATASET_ID"
   - echo "Running the extractor to test:\ $EXTRACTOR_DOCKER_NAME"
@@ -113,6 +115,7 @@ script:
   - pylint --version
   - pylint --rcfile pylint.rc "$SOURCE_FILE"
   - pylint --rcfile pylint.rc pipelineutils/pytest/test_clowder.py
+  - echo `curl -X GET -H "accept:application/json" "$CLOWDER_HOST_URI/api/spaces?key=$API_KEY"`
   # Next, run the testing scripts
   - python -m unittest pipelineutils/pytest/test_clowder.py
 
