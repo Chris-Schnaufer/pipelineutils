@@ -27,10 +27,10 @@ services:
   - docker
 
 # Only deploy the container after the master branch has built
-#stages:
-#  - name: after_script
-#    # require the branch name to be master (note for PRs this is the base branch name)
-#    if: branch = master
+stages:
+  - name: after_script
+    # require the branch name to be master (note for PRs this is the base branch name)
+    if: branch = master
 
 env:
   global:
@@ -45,6 +45,8 @@ env:
     - TEST_SPACE_NAME=test_space
     - TEST_FILE_UPLOAD_PATH=pipelineutils/pytest/data/opendronemap_extractor_info.json
     - TEST_EXTRACTOR_FULL_NAME=terra.dronepipeline.opendronemap
+    - TWINE_USERNAME=schnaufer
+    - TWINE_PASSWORD=MIlk&Frot4
 
 # Basic setup for the build. Install software needed by all extractors followed by optional installs for specific extractors
 before_install:
@@ -121,8 +123,12 @@ script:
   # Next, run the testing scripts
   - python -m unittest pipelineutils/pytest/test_clowder.py
 
-deploy:
-  provider: pypi
-  user: "schnaufer"
-  password:
-    secure: "Xueqiw1SXgryrNcTbixSEurBm2rZLjvfwd7IfJyHQKoNkYNvNh/AqjG3bsbPGzWDKDqqy95U5Psjw09LirbfG9VjNtL7vrWsOV/VE2orvPtM1qT5iBX2+A7OVnTcN9PS97smlFmQimnwV3wj+utY6JuZgfnPMneU2wr2z3xoJ2Om/10TQadQ4PXNTiNleHl2Nfh3QagC+MiIuV0X5F9syIUwPP+xvVyddl5pdCsA760YlUpjvWjI7ZtYp30pxPhts5ltHU8dU6KNVld0nlB5szMh4Ku4+F32Bu6f7ZMItjMZG8N4w3VIbeFFWQYAIHzQljGaitntpjQ7x62OFa6K0Nx0r5fnyMI++YnI6extZTJskvEAvqF7F+tNnUPuBtCCw8yWkSy0Ha7f8m8868OGNbX3v3hII5JtuAmGt/mqMRVKSG7zDu5QPNepA1CQAIT/TN7ZYgvRY/apeEGQ1WCB8LZczphc3BIwT7jti+eOZB7fwvjgycnNF+IsgDYkLdUHHsdUkhGw4fy7FwfvcwVRgQY0J/Y7F4WohBkrWvkg/Y+3bce0uG6fhqsJNMSBw4rhYZlIJioZ+MOwySxp9TyQi0tkAlvgZgCsMzVkzosgfgtrPayQJvSNEg2I2jBCJ2IENqeE4mXR/SS3p3zb1uNp9Al7rE66AU+Esozmqa21uoE="
+after_script:
+  - echo "Deploying library after successful run"
+  - pip install -U setuptools
+  - pip install -U wheel
+  - pip install -U twine
+  - pushd pipelineutils
+  - python3 setup.py sdist bdist_wheel
+  - python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+  
