@@ -46,7 +46,7 @@ env:
     - TEST_FILE_UPLOAD_PATH=pipelineutils/pytest/data/opendronemap_extractor_info.json
     - TEST_EXTRACTOR_FULL_NAME=terra.dronepipeline.opendronemap
     - TWINE_USERNAME=schnaufer
-    - TWINE_PASSWORD=MIlk&Frot4
+    - TWINE_PASSWORD="MIlk&Frot4"
 
 # Basic setup for the build. Install software needed by all extractors followed by optional installs for specific extractors
 before_install:
