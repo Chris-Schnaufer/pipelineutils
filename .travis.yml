@@ -132,6 +132,6 @@ after_script:
   - pip install -U twine
   - pushd pipelineutils
   - python3 setup.py sdist bdist_wheel
-  - /bin/bash -c "[[ \"$BRANCH\" = \"develop\" ]] && python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*"
-  - /bin/bash -c "[[ \"$BRANCH\" = \"master\" ]] && python3 -m twine upload dist/*"
+  - /bin/bash -c "if [[ \"$BRANCH\" = \"develop\" ]]; then python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*; echo \"Pushing develop to legacy Pypi\"; fi; "
+  - /bin/bash -c "if [[ \"$BRANCH\" = \"master\" ]]; then python3 -m twine upload dist/*; echo \"Pushing master to Pipy\"; fi; "
   
