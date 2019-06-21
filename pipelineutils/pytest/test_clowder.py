@@ -504,3 +504,34 @@ class ClowderTestCase(unittest.TestCase):
             self.assertEqual(experiment['observationTimestamp'], timestamp, "Experiment timestamp is not correct")
 
         print("test_prepare_experiment passed")
+
+    def test_interface(self):
+        """Tests the user entry point for starting an extractor
+        """
+        study = str(uuid.uuid4())
+        season = str(uuid.uuid4())
+        timestamp = str(uuid.uuid4())
+        experiment = None
+        dataset_name = os.getenv("TEST_DATASET_NAME")
+        self.assertIsNotNone(dataset_name, "Unable to find a configured environment variable of TEST_DATASET_NAME")
+        extractor_name = os.getenv("TEST_EXTRACTOR_NAME")
+        self.assertIsNotNone(extractor_name, "Unable to find a configured environment variable of TEST_EXTRACTOR_NAME")
+        space_name = os.getenv("TEST_SPACE_NAME")
+        self.assertIsNotNone(space_name, "Unable to find a configured environment variable of TEST_SPACE_NAME")
+
+        try:
+            experiment = pu.prepare_experiment(study, season, timestamp)
+        except Exception as ex:
+            print("Exception was caught preparing experiment data", str(ex))
+        finally:
+            self.assertIsNotNone(experiment, "Unable to create experiment to start an extraction")
+
+        try:
+            started = pu.start_extractor(CLOWDER_URI, experiment, USERNAME, PASSWORD, dataset_name,
+                                         extractor_name, space_name)
+        except Exception as ex:
+            print("Exception was caught preparing experiment data", str(ex))
+        finally:
+            self.assertTrue(started, "Unable to start an extraction")
+
+        print("test_interface (aka: start_extractor) passed")
