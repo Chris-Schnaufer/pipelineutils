@@ -530,7 +530,7 @@ class ClowderTestCase(unittest.TestCase):
             started = pu.start_extractor(CLOWDER_URI, experiment, USERNAME, PASSWORD, dataset_name,
                                          extractor_name, space_name)
         except Exception as ex:
-            print("Exception was caught preparing experiment data", str(ex))
+            print("Exception was caught requesting extractor start", str(ex))
         finally:
             self.assertTrue(started, "Unable to start an extraction")
 
