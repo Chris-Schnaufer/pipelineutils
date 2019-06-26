@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 def description():
     """Description of package
     """
-    with open('readme.rst') as f:
+    with open('README.rst') as f:
          return f.read()
 
 setup(name='pipelineutils',
