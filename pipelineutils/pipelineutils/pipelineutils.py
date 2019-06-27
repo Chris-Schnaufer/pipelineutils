@@ -157,7 +157,7 @@ class __local__():
         logger.debug("    %s", str(get_args))
         result_key = __local__.get(url, get_args, result_key="key", result_index=0)
         if result_key is None:
-            logger.warning("Unable to find an API key for user %s", username)
+            logger.info("Unable to find an API key for user %s", username)
 
         return result_key
 
@@ -190,7 +190,7 @@ class __local__():
                 if 'name' in ex and extractor_name in ex['name']:
                     return ex['name']
 
-        logger.warning("Unable to find an extractor matching \"%s\"", extractor_name)
+        logger.info("Unable to find an extractor matching \"%s\"", extractor_name)
         return None
 
     @staticmethod
@@ -214,7 +214,7 @@ class __local__():
         logger.debug("get_dataset_id calling get: %s", url)
         result_id = __local__.get(url, result_key='id', result_index=0)
         if result_id is None:
-            logger.warning("Unable to find the ID for the dataset \"%s\"", dataset_name)
+            logger.info("Unable to find the ID for the dataset \"%s\"", dataset_name)
 
         return result_id
 
@@ -239,7 +239,7 @@ class __local__():
         logger.debug("get_space_id calling get: %s", url)
         result_id = __local__.get(url, result_key='id', result_index=0)
         if result_id is None:
-            logger.warning("Unable to find the ID for the space \"%s\"", space_name)
+            logger.info("Unable to find the ID for the space \"%s\"", space_name)
             
         return result_id
 
@@ -267,9 +267,9 @@ class __local__():
         
         logger.debug("create_space calling post: %s", url)
         logger.debug("    %s", str(post_args))
-        result_id = __local__.post(url, post_args, result_key='id', result_index=0)
+        result_id = __local__.post(url, post_args, result_key='id')
         if result_id is None:
-            logger.warning("Unable to determine if space \"%s\" was created", space_name)
+            logger.info("Unable to determine if space \"%s\" was created", space_name)
 
         return result_id
 
@@ -386,7 +386,7 @@ class __local__():
         logger.debug("remove_file_by_id calling delete: %s", url)
         result_status = __local__.delete(url, result_key='status')
         if result_status is None:
-            logger.warning("Unable to determine if file %s was deleted", file_id)
+            logger.info("Unable to determine if file %s was deleted", file_id)
 
         return not result_status is None
 
@@ -421,7 +421,7 @@ class __local__():
         result_id = __local__.post(url, post_args, result_key='id')
 
         if result_id is None:
-            logger.warning("Unable to determine if upload of file \"%s\" with string configuration was successful",
+            logger.info("Unable to determine if upload of file \"%s\" with string configuration was successful",
                            filename)
 
         return result_id
@@ -473,7 +473,7 @@ class __local__():
             do_cleanup(tmp_folder)
 
         if result_id is None:
-            logger.warning("Unable to determine if upload of file \"%s\" as configuration file \"%s\" was successful",
+            logger.info("Unable to determine if upload of file \"%s\" as configuration file \"%s\" was successful",
                            filename, config_file)
 
         return result_id
