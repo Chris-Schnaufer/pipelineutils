@@ -125,7 +125,7 @@ script:
   # Next, run the testing scripts
   - python -m unittest pipelineutils/pytest/test_clowder.py
 
-after_script:
+after_success:
   - echo "Deploying library after successful run"
   - pip install -U setuptools
   - pip install -U wheel

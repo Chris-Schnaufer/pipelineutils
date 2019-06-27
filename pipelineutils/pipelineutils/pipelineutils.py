@@ -422,7 +422,7 @@ class __local__():
 
         if result_id is None:
             logger.info("Unable to determine if upload of file \"%s\" with string configuration was successful",
-                           filename)
+                        filename)
 
         return result_id
 
@@ -474,7 +474,7 @@ class __local__():
 
         if result_id is None:
             logger.info("Unable to determine if upload of file \"%s\" as configuration file \"%s\" was successful",
-                           filename, config_file)
+                        filename, config_file)
 
         return result_id
 
