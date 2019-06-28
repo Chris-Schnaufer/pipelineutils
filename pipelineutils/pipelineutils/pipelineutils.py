@@ -522,7 +522,7 @@ def prepare_experiment(study_name: str, season: str, timestamp: str) -> dict:
     return {
         "studyName": study_name,
         "season": season,
-        "observationTimestamp": timestamp
+        "observationTimeStamp": timestamp
     }
 
 def start_extractor(clowder_url: str, experiment: dict, username: str, password: str, dataset: str,
